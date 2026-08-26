@@ -5,7 +5,7 @@ const moviesDatabase = [
         title: "Dune: Part Two",
         genre: "action",
         format: "3d",
-        poster: "🌍",
+        poster: "HO00012878.jpg",
         synopsis: "Paul Atreides viaja al planeta Arrakis para vengar la muerte de su familia. En el desierto, descubre su verdadero potencial mientras se une a los Fremen.",
         cast: "Timothée Chalamet, Zendaya, Oscar Isaac, Rebecca Ferguson",
         duration: "2h 46m",
