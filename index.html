@@ -1,436 +1,153 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineApp - Reserva de Entradas de Cine</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/1.1.3/qrious.min.js"></script>
-</head>
-<body>
-    <!-- HEADER COMPLETO -->
-    <header class="header">
-        <div class="header-container">
-            <!-- Logo -->
-            <div class="logo">
-                <span class="logo-icon">🎬</span>
-                <span class="logo-text">CineApp</span>
-            </div>
+const movies = [
+  {
+    id: 1,
+    title: "AVENGERS: DOOMSDAY",
+    tag: "PRE-VENTA",
+    format: "4D-INFINITY",
+    genre: "Acción / Sci-Fi",
+    duration: "165 min",
+    poster: "https://image.tmdb.org/t/p/w500/mqAf42d2a45Yq6Tz6wE6iJ26X2Y.jpg",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+  },
+  {
+    id: 2,
+    title: "SPIDER-MAN: UN NUEVO DÍA",
+    tag: "ESTRENO",
+    format: "3D - 4D",
+    genre: "Acción / Aventura",
+    duration: "140 min",
+    poster: "https://image.tmdb.org/t/p/w500/8bp64X1wG5mG1gD1oJk99X2.jpg",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+  },
+  {
+    id: 3,
+    title: "DEADPOOL & WOLVERINE",
+    tag: "ESTRENO",
+    format: "2D - 3D",
+    genre: "Acción / Comedia",
+    duration: "128 min",
+    poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+    trailer: "https://www.youtube.com/embed/8Gxv8gSFCU0XGDykEGv7zR1n2ua"
+  },
+  {
+    id: 4,
+    title: "THE FANTASTIC FOUR",
+    tag: "PRE-VENTA",
+    format: "2D - 3D",
+    genre: "Sci-Fi",
+    duration: "135 min",
+    poster: "https://image.tmdb.org/t/p/w500/9l1E4uL9kR9J2V63xZ76.jpg",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+  }
+];
 
-            <!-- Buscador -->
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar película...">
-                <button class="search-btn">🔍</button>
-            </div>
+let selectedMovie = null;
+let selectedSeats = [];
+const ticketPrice = 4500;
 
-            <!-- Selectores -->
-            <div class="header-controls">
-                <select id="formatSelect" class="format-select">
-                    <option value="">Formato</option>
-                    <option value="2d">2D</option>
-                    <option value="3d">3D</option>
-                </select>
+document.addEventListener("DOMContentLoaded", () => {
+  renderMovies();
+  checkSession();
+});
 
-                <select id="genreSelect" class="genre-select">
-                    <option value="">Género</option>
-                    <option value="action">Acción</option>
-                    <option value="drama">Drama</option>
-                    <option value="scifi">Ciencia Ficción</option>
-                    <option value="horror">Terror</option>
-                    <option value="comedy">Comedia</option>
-                </select>
+function renderMovies() {
+  const container = document.getElementById("movies-grid");
+  if (!container) return;
 
-                <button id="loginBtn" class="login-btn">👤 Iniciar Sesión</button>
-            </div>
+  container.innerHTML = movies.map(m => `
+    <div class="movie-card">
+      <div class="poster-wrapper">
+        <span class="ribbon">${m.tag}</span>
+        <img src="${m.poster}" alt="${m.title}">
+        <span class="format-badge">${m.format}</span>
+      </div>
+      <div class="movie-info">
+        <h3>${m.title}</h3>
+        <p>${m.genre} • ${m.duration}</p>
+        <div class="card-btns">
+          <button class="btn-primary" onclick="selectMovie(${m.id})">Entradas</button>
+          <button class="btn-secondary" onclick="openTrailer('${m.trailer}')">Trailer</button>
         </div>
-    </header>
-
-    <!-- USUARIO ACTIVO EN HEADER -->
-    <div class="user-logged" id="userLogged" style="display: none;">
-        <img id="userAvatar" class="user-avatar" alt="Avatar">
-        <span id="userName" class="user-name"></span>
-        <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+      </div>
     </div>
+  `).join('');
+}
 
-    <!-- MODAL LOGIN/REGISTRO -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal-auth">
-            <button class="modal-close" id="closeLoginModal">✕</button>
-            
-            <div class="auth-container">
-                <div class="auth-tabs">
-                    <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
-                    <button class="auth-tab" data-tab="register">Registrarse</button>
-                </div>
+function selectMovie(id) {
+  selectedMovie = movies.find(m => m.id === id);
+  selectedSeats = [];
+  document.getElementById("seats-section").classList.remove("hidden");
+  document.getElementById("seats-section").scrollIntoView({ behavior: 'smooth' });
+  renderSeats();
+}
 
-                <!-- Login Tab -->
-                <form id="loginForm" class="auth-form active">
-                    <input type="email" placeholder="Email" required>
-                    <input type="password" placeholder="Contraseña" required>
-                    <button type="submit" class="auth-submit-btn">Ingresar</button>
-                    <p class="auth-note">Demo: usa cualquier email/contraseña</p>
-                </form>
+function renderSeats() {
+  const container = document.getElementById("seats-container");
+  container.innerHTML = "";
+  for (let i = 1; i <= 60; i++) {
+    const seat = document.createElement("button");
+    const isOccupied = i % 7 === 0;
+    seat.className = `seat ${isOccupied ? 'occupied' : 'free'}`;
+    seat.innerText = i;
+    seat.disabled = isOccupied;
 
-                <!-- Register Tab -->
-                <form id="registerForm" class="auth-form">
-                    <input type="text" placeholder="Nombre completo" required>
-                    <input type="email" placeholder="Email" required>
-                    <input type="password" placeholder="Contraseña (mín. 6 caracteres)" required>
-                    <input type="password" placeholder="Confirmar contraseña" required>
-                    <button type="submit" class="auth-submit-btn">Crear Cuenta</button>
-                    <p class="auth-note">Los datos se guardan en localStorage</p>
-                </form>
-            </div>
-        </div>
-    </div>
+    seat.onclick = () => {
+      if (seat.classList.contains("selected")) {
+        seat.classList.remove("selected");
+        selectedSeats = selectedSeats.filter(s => s !== i);
+      } else {
+        seat.classList.add("selected");
+        selectedSeats.push(i);
+      }
+      document.getElementById("selected-seats-text").innerText = selectedSeats.length ? selectedSeats.join(", ") : "Ninguno";
+      document.getElementById("total-price-text").innerText = `$${selectedSeats.length * ticketPrice}`;
+      document.getElementById("pay-btn").disabled = selectedSeats.length === 0;
+    };
+    container.appendChild(seat);
+  }
+}
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="container">
-        <!-- SECCIÓN 1: HERO BANNER SLIDER -->
-        <section class="hero-section">
-            <div class="hero-slider">
-                <div class="hero-slide active">
-                    <div class="hero-content">
-                        <div class="hero-text">
-                            <h1>Avengers: Doomsday</h1>
-                            <p>En cines ahora</p>
-                            <div class="hero-badges">
-                                <span class="hero-badge">4D</span>
-                                <span class="hero-badge">IMAX</span>
-                                <span class="hero-badge">PRE-VENTA</span>
-                            </div>
-                            <button class="hero-cta">Comprar Entradas</button>
-                        </div>
-                    </div>
-                </div>
+// Trailers
+function openTrailer(url) {
+  document.getElementById("trailer-frame").src = url;
+  document.getElementById("trailer-modal").classList.remove("hidden");
+}
+function closeTrailer() {
+  document.getElementById("trailer-frame").src = "";
+  document.getElementById("trailer-modal").classList.add("hidden");
+}
 
-                <div class="hero-slide">
-                    <div class="hero-content">
-                        <div class="hero-text">
-                            <h1>Deadpool & Wolverine</h1>
-                            <p>El evento del verano</p>
-                            <div class="hero-badges">
-                                <span class="hero-badge">3D</span>
-                                <span class="hero-badge">ESTRENO</span>
-                            </div>
-                            <button class="hero-cta">Comprar Entradas</button>
-                        </div>
-                    </div>
-                </div>
+// Modales Checkout & Ticket
+function openCheckout() { document.getElementById("checkout-modal").classList.remove("hidden"); }
+function closeCheckout() { document.getElementById("checkout-modal").classList.add("hidden"); }
 
-                <div class="hero-slide">
-                    <div class="hero-content">
-                        <div class="hero-text">
-                            <h1>Inside Out 2</h1>
-                            <p>El viaje emocional continúa</p>
-                            <div class="hero-badges">
-                                <span class="hero-badge">3D</span>
-                                <span class="hero-badge">FAMILIA</span>
-                            </div>
-                            <button class="hero-cta">Comprar Entradas</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+function confirmPayment() {
+  closeCheckout();
+  const user = JSON.parse(localStorage.getItem("currentUser")) || { name: "Cliente" };
+  document.getElementById("ticket-details").innerHTML = `
+    <p><strong>Usuario:</strong> ${user.name}</p>
+    <p><strong>Película:</strong> ${selectedMovie.title}</p>
+    <p><strong>Asientos:</strong> ${selectedSeats.join(", ")}</p>
+    <p><strong>Total:</strong> $${selectedSeats.length * ticketPrice}</p>
+  `;
+  new QRious({ element: document.getElementById("qr-code"), value: `CINEAPP-${Date.now()}`, size: 150 });
+  document.getElementById("ticket-modal").classList.remove("hidden");
+}
+function closeTicket() { document.getElementById("ticket-modal").classList.add("hidden"); }
 
-            <!-- Controles del slider -->
-            <button class="hero-nav hero-prev" id="heroPrev">❮</button>
-            <button class="hero-nav hero-next" id="heroNext">❯</button>
+// Auth
+function openAuthModal() { document.getElementById("auth-modal").classList.remove("hidden"); }
+function closeAuthModal() { document.getElementById("auth-modal").classList.add("hidden"); }
 
-            <!-- Indicadores del slider -->
-            <div class="hero-indicators">
-                <button class="indicator active" data-slide="0"></button>
-                <button class="indicator" data-slide="1"></button>
-                <button class="indicator" data-slide="2"></button>
-            </div>
-        </section>
+document.getElementById("auth-form").onsubmit = (e) => {
+  e.preventDefault();
+  const name = document.getElementById("user-name").value;
+  localStorage.setItem("currentUser", JSON.stringify({ name }));
+  checkSession();
+  closeAuthModal();
+};
 
-        <!-- SECCIÓN 2: BARRA DE COMPLEJOS/CINES -->
-        <section class="complexes-section">
-            <h3>Selecciona tu Complejo</h3>
-            <div class="complexes-container" id="complexesContainer">
-                <button class="complex-pill active" data-complex="all">Todos</button>
-                <button class="complex-pill" data-complex="liniers">Liniers</button>
-                <button class="complex-pill" data-complex="catan">Catán</button>
-                <button class="complex-pill" data-complex="caballito">Caballito</button>
-                <button class="complex-pill" data-complex="alcorta">Alcorta</button>
-                <button class="complex-pill" data-complex="nordelta">Nordelta</button>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 3: FILTRO DE DÍAS Y ORDENAMIENTO -->
-        <section class="filters-section">
-            <div class="days-filter">
-                <h3>Selecciona Día</h3>
-                <div class="days-container" id="daysContainer">
-                    <button class="day-btn active" data-day="all">Todos los días</button>
-                    <button class="day-btn" data-day="today">Hoy</button>
-                    <button class="day-btn" data-day="tomorrow">Mañana</button>
-                    <button class="day-btn" data-day="next3">Próximos 3 días</button>
-                    <button class="day-btn" data-day="next7">Próximos 7 días</button>
-                </div>
-            </div>
-
-            <div class="sort-filter">
-                <h3>Ordenar por</h3>
-                <select id="sortSelect" class="sort-select">
-                    <option value="relevance">Relevancia</option>
-                    <option value="popularity">Más Popular</option>
-                    <option value="rating">Mejor Calificado</option>
-                    <option value="newest">Más Reciente</option>
-                </select>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 4: CARTELERA DE PELÍCULAS -->
-        <section class="billboard-section">
-            <h2>Cartelera</h2>
-            <div class="movies-grid" id="moviesGrid"></div>
-        </section>
-
-        <!-- MODAL TRAILER Y DETALLES DE PELÍCULA -->
-        <div class="modal-overlay" id="trailerModal">
-            <div class="modal-movie-details">
-                <button class="modal-close" id="closeTrailerModal">✕</button>
-                
-                <div class="modal-grid">
-                    <!-- Trailer embebido -->
-                    <div class="trailer-container">
-                        <iframe id="trailerFrame" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
-                    </div>
-
-                    <!-- Información película -->
-                    <div class="movie-details-info">
-                        <h2 id="detailTitle"></h2>
-                        <div class="rating-display">
-                            <span id="starRating"></span>
-                            <span id="ratingText"></span>
-                        </div>
-                        <p id="detailSynopsis"></p>
-                        
-                        <div class="movie-metadata">
-                            <div class="meta-item">
-                                <strong>Reparto:</strong>
-                                <p id="detailCast"></p>
-                            </div>
-                            <div class="meta-item">
-                                <strong>Duración:</strong>
-                                <p id="detailDuration"></p>
-                            </div>
-                            <div class="meta-item">
-                                <strong>Clasificación:</strong>
-                                <p id="detailRating"></p>
-                            </div>
-                            <div class="meta-item">
-                                <strong>Idioma:</strong>
-                                <p id="detailLanguage"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección de Reseñas -->
-                <div class="reviews-section">
-                    <h3>Reseñas y Opiniones</h3>
-                    
-                    <div class="add-review">
-                        <h4>Deja tu reseña</h4>
-                        <div class="star-selector">
-                            <span class="star" data-value="1">⭐</span>
-                            <span class="star" data-value="2">⭐</span>
-                            <span class="star" data-value="3">⭐</span>
-                            <span class="star" data-value="4">⭐</span>
-                            <span class="star" data-value="5">⭐</span>
-                        </div>
-                        <textarea id="reviewText" placeholder="Escribe tu comentario..."></textarea>
-                        <button id="submitReviewBtn" class="submit-review-btn">Enviar Reseña</button>
-                    </div>
-
-                    <div class="reviews-list" id="reviewsList"></div>
-                </div>
-
-                <button id="selectSeatsBtn" class="select-seats-btn">Seleccionar Asientos</button>
-            </div>
-        </div>
-
-        <!-- SECCIÓN 5: MAPA INTERACTIVO DE BUTACAS -->
-        <section class="seats-section" id="seatsSection" style="display: none;">
-            <h2>Selecciona tus Asientos</h2>
-            
-            <div class="seats-container">
-                <div class="screen-label">PANTALLA</div>
-                
-                <div class="seats-grid" id="seatsGrid"></div>
-
-                <div class="seat-legend">
-                    <div class="legend-item">
-                        <div class="seat free"></div>
-                        <span>Libre</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="seat occupied"></div>
-                        <span>Ocupado</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="seat selected"></div>
-                        <span>Seleccionado</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="seats-info">
-                <p>Asientos seleccionados: <strong id="selectedSeatsDisplay"></strong></p>
-                <p>Total: <strong id="totalSeatsPrice"></strong></p>
-            </div>
-
-            <button id="proceedCheckoutBtn" class="proceed-checkout-btn">Ir a Pagar</button>
-        </section>
-
-        <!-- SECCIÓN 6: CHECKOUT POR TRANSFERENCIA BANCARIA -->
-        <section class="checkout-section" id="checkoutSection" style="display: none;">
-            <h2>Confirmación de Pago</h2>
-
-            <div class="checkout-container">
-                <!-- Resumen de reserva -->
-                <div class="checkout-summary">
-                    <h3>Resumen de tu Reserva</h3>
-                    <div class="summary-item">
-                        <span>Película:</span>
-                        <strong id="checkoutMovie"></strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Fecha y Hora:</span>
-                        <strong id="checkoutDateTime"></strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Asientos:</span>
-                        <strong id="checkoutSeats"></strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Cantidad:</span>
-                        <strong id="checkoutQuantity"></strong>
-                    </div>
-                    <div class="summary-item highlight">
-                        <span>Monto Total:</span>
-                        <strong id="checkoutTotal"></strong>
-                    </div>
-                </div>
-
-                <!-- Datos bancarios -->
-                <div class="banking-info">
-                    <h3>Datos para Transferencia</h3>
-                    <div class="bank-card">
-                        <div class="bank-detail">
-                            <span class="bank-label">Titular:</span>
-                            <span class="bank-value">CineApp SRL</span>
-                        </div>
-                        <div class="bank-detail">
-                            <span class="bank-label">Alias:</span>
-                            <span class="bank-value alias">cine.app.reservas</span>
-                        </div>
-                        <div class="bank-detail">
-                            <span class="bank-label">CVU:</span>
-                            <span class="bank-value cvu">0000003100012345678901</span>
-                        </div>
-                        <div class="bank-detail highlight">
-                            <span class="bank-label">Monto:</span>
-                            <span class="bank-value amount" id="bankAmount"></span>
-                        </div>
-                        <button class="copy-btn" id="copyAliasBtn">Copiar Alias</button>
-                        <button class="copy-btn" id="copyCVUBtn">Copiar CVU</button>
-                    </div>
-                </div>
-
-                <!-- Simulador de comprobante -->
-                <div class="receipt-simulator">
-                    <h3>Cargar Comprobante</h3>
-                    <p class="receipt-note">Simula haber realizado la transferencia y sube el comprobante</p>
-                    
-                    <div class="receipt-upload">
-                        <input type="file" id="receiptFile" accept="image/*,.pdf" style="display: none;">
-                        <button id="uploadReceiptBtn" class="upload-btn">📎 Seleccionar Comprobante</button>
-                        <span id="receiptFileName" class="receipt-filename"></span>
-                    </div>
-
-                    <div class="receipt-preview" id="receiptPreview" style="display: none;">
-                        <img id="receiptImage" alt="Comprobante">
-                    </div>
-
-                    <div class="receipt-sim">
-                        <p>O simula completar el pago:</p>
-                        <button id="simulatePaymentBtn" class="simulate-payment-btn">Simular Transferencia Completada</button>
-                    </div>
-                </div>
-
-                <button id="finalizePaymentBtn" class="finalize-payment-btn" disabled>Confirmar y Generar Ticket</button>
-            </div>
-        </section>
-    </div>
-
-    <!-- MODAL TICKET DIGITAL CON QR -->
-    <div class="modal-overlay" id="ticketModal">
-        <div class="modal-ticket">
-            <button class="modal-close" id="closeTicketModal">✕</button>
-            
-            <div class="ticket-container" id="ticketContent">
-                <div class="ticket-header">
-                    <div class="ticket-logo">🎬 CineApp</div>
-                    <div class="ticket-title">TICKET DIGITAL</div>
-                </div>
-
-                <div class="ticket-body">
-                    <div class="ticket-section">
-                        <h4>Datos de la Reserva</h4>
-                        <div class="ticket-item">
-                            <span class="ticket-label">Titular:</span>
-                            <span class="ticket-value" id="ticketUserName"></span>
-                        </div>
-                        <div class="ticket-item">
-                            <span class="ticket-label">Película:</span>
-                            <span class="ticket-value" id="ticketMovie"></span>
-                        </div>
-                        <div class="ticket-item">
-                            <span class="ticket-label">Fecha y Hora:</span>
-                            <span class="ticket-value" id="ticketDateTime"></span>
-                        </div>
-                        <div class="ticket-item">
-                            <span class="ticket-label">Sala:</span>
-                            <span class="ticket-value" id="ticketRoom"></span>
-                        </div>
-                        <div class="ticket-item">
-                            <span class="ticket-label">Asientos:</span>
-                            <span class="ticket-value" id="ticketSeats"></span>
-                        </div>
-                    </div>
-
-                    <div class="ticket-section">
-                        <h4>Monto Abonado</h4>
-                        <div class="ticket-amount" id="ticketAmount"></div>
-                    </div>
-
-                    <div class="ticket-section">
-                        <h4>Código de Reserva</h4>
-                        <div class="ticket-code" id="ticketCode"></div>
-                    </div>
-
-                    <div class="ticket-qr">
-                        <canvas id="qrCode" width="200" height="200"></canvas>
-                    </div>
-                </div>
-
-                <div class="ticket-footer">
-                    <p>Presenta este QR en la entrada del cine</p>
-                </div>
-            </div>
-
-            <div class="ticket-actions">
-                <button id="printTicketBtn" class="print-ticket-btn">🖨️ Imprimir Ticket</button>
-                <button id="downloadTicketBtn" class="download-ticket-btn">⬇️ Descargar Ticket</button>
-                <button id="newBookingBtn" class="new-booking-btn">Hacer otra Reserva</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+function checkSession() {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if (user) document.getElementById("auth-btn").innerText = `👤 ${user.name}`;
+}
