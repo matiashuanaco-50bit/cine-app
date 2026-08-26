@@ -45,6 +45,13 @@
         </div>
     </header>
 
+    <!-- USUARIO ACTIVO EN HEADER -->
+    <div class="user-logged" id="userLogged" style="display: none;">
+        <img id="userAvatar" class="user-avatar" alt="Avatar">
+        <span id="userName" class="user-name"></span>
+        <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+    </div>
+
     <!-- MODAL LOGIN/REGISTRO -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-auth">
@@ -77,18 +84,107 @@
         </div>
     </div>
 
-    <!-- USUARIO ACTIVO EN HEADER -->
-    <div class="user-logged" id="userLogged" style="display: none;">
-        <img id="userAvatar" class="user-avatar" alt="Avatar">
-        <span id="userName" class="user-name"></span>
-        <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
-    </div>
-
     <!-- CONTENEDOR PRINCIPAL -->
     <div class="container">
-        <!-- SECCIÓN 1: TARJETAS DE PELÍCULAS -->
-        <section class="movies-section">
-            <h2>Películas Disponibles</h2>
+        <!-- SECCIÓN 1: HERO BANNER SLIDER -->
+        <section class="hero-section">
+            <div class="hero-slider">
+                <div class="hero-slide active">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>Avengers: Doomsday</h1>
+                            <p>En cines ahora</p>
+                            <div class="hero-badges">
+                                <span class="hero-badge">4D</span>
+                                <span class="hero-badge">IMAX</span>
+                                <span class="hero-badge">PRE-VENTA</span>
+                            </div>
+                            <button class="hero-cta">Comprar Entradas</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>Deadpool & Wolverine</h1>
+                            <p>El evento del verano</p>
+                            <div class="hero-badges">
+                                <span class="hero-badge">3D</span>
+                                <span class="hero-badge">ESTRENO</span>
+                            </div>
+                            <button class="hero-cta">Comprar Entradas</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>Inside Out 2</h1>
+                            <p>El viaje emocional continúa</p>
+                            <div class="hero-badges">
+                                <span class="hero-badge">3D</span>
+                                <span class="hero-badge">FAMILIA</span>
+                            </div>
+                            <button class="hero-cta">Comprar Entradas</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles del slider -->
+            <button class="hero-nav hero-prev" id="heroPrev">❮</button>
+            <button class="hero-nav hero-next" id="heroNext">❯</button>
+
+            <!-- Indicadores del slider -->
+            <div class="hero-indicators">
+                <button class="indicator active" data-slide="0"></button>
+                <button class="indicator" data-slide="1"></button>
+                <button class="indicator" data-slide="2"></button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: BARRA DE COMPLEJOS/CINES -->
+        <section class="complexes-section">
+            <h3>Selecciona tu Complejo</h3>
+            <div class="complexes-container" id="complexesContainer">
+                <button class="complex-pill active" data-complex="all">Todos</button>
+                <button class="complex-pill" data-complex="liniers">Liniers</button>
+                <button class="complex-pill" data-complex="catan">Catán</button>
+                <button class="complex-pill" data-complex="caballito">Caballito</button>
+                <button class="complex-pill" data-complex="alcorta">Alcorta</button>
+                <button class="complex-pill" data-complex="nordelta">Nordelta</button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: FILTRO DE DÍAS Y ORDENAMIENTO -->
+        <section class="filters-section">
+            <div class="days-filter">
+                <h3>Selecciona Día</h3>
+                <div class="days-container" id="daysContainer">
+                    <button class="day-btn active" data-day="all">Todos los días</button>
+                    <button class="day-btn" data-day="today">Hoy</button>
+                    <button class="day-btn" data-day="tomorrow">Mañana</button>
+                    <button class="day-btn" data-day="next3">Próximos 3 días</button>
+                    <button class="day-btn" data-day="next7">Próximos 7 días</button>
+                </div>
+            </div>
+
+            <div class="sort-filter">
+                <h3>Ordenar por</h3>
+                <select id="sortSelect" class="sort-select">
+                    <option value="relevance">Relevancia</option>
+                    <option value="popularity">Más Popular</option>
+                    <option value="rating">Mejor Calificado</option>
+                    <option value="newest">Más Reciente</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: CARTELERA DE PELÍCULAS -->
+        <section class="billboard-section">
+            <h2>Cartelera</h2>
             <div class="movies-grid" id="moviesGrid"></div>
         </section>
 
@@ -157,7 +253,7 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 2: MAPA INTERACTIVO DE BUTACAS -->
+        <!-- SECCIÓN 5: MAPA INTERACTIVO DE BUTACAS -->
         <section class="seats-section" id="seatsSection" style="display: none;">
             <h2>Selecciona tus Asientos</h2>
             
@@ -190,7 +286,7 @@
             <button id="proceedCheckoutBtn" class="proceed-checkout-btn">Ir a Pagar</button>
         </section>
 
-        <!-- SECCIÓN 3: CHECKOUT POR TRANSFERENCIA BANCARIA -->
+        <!-- SECCIÓN 6: CHECKOUT POR TRANSFERENCIA BANCARIA -->
         <section class="checkout-section" id="checkoutSection" style="display: none;">
             <h2>Confirmación de Pago</h2>
 
