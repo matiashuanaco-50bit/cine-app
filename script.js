@@ -140,94 +140,173 @@ function saveReservation(reservation) {
     localStorage.setItem('cineappReservations', JSON.stringify(reservations));
 }
 
-// ========================= AUTENTICACIÓN =========================
-function initAuth() {
-    currentUser = loadUser();
+// ========================= ACTUALIZAR UI DE USUARIO =========================
+function updateUserUI() {
     const loginBtn = document.getElementById('loginBtn');
     const userLogged = document.getElementById('userLogged');
-    const logoutBtn = document.getElementById('logoutBtn');
 
     if (currentUser) {
-        loginBtn.style.display = 'none';
-        userLogged.style.display = 'flex';
-        document.getElementById('userName').textContent = currentUser.name;
-        document.getElementById('userAvatar').src = currentUser.avatar;
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userLogged) {
+            userLogged.style.display = 'flex';
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').src = currentUser.avatar;
+        }
     } else {
-        loginBtn.style.display = 'block';
-        userLogged.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'block';
+        if (userLogged) userLogged.style.display = 'none';
+    }
+}
+
+// ========================= AUTENTICACIÓN =========================
+function initAuth() {
+    // Cargar usuario desde localStorage
+    currentUser = loadUser();
+    updateUserUI();
+
+    const loginBtn = document.getElementById('loginBtn');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const authTabs = document.querySelectorAll('.auth-tab');
+
+    // Abrir modal de login
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) {
+                loginModal.classList.add('active');
+            }
+        });
     }
 
-    loginBtn.addEventListener('click', () => {
-        document.getElementById('loginModal').classList.add('active');
-    });
-
-    document.getElementById('closeLoginModal').addEventListener('click', () => {
-        document.getElementById('loginModal').classList.remove('active');
-    });
+    // Cerrar modal de login
+    if (closeLoginModal) {
+        closeLoginModal.addEventListener('click', () => {
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) {
+                loginModal.classList.remove('active');
+            }
+        });
+    }
 
     // Tabs del auth
-    const authTabs = document.querySelectorAll('.auth-tab');
     authTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             authTabs.forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
             tab.classList.add('active');
             const tabName = tab.dataset.tab;
-            document.getElementById(tabName + 'Form').classList.add('active');
+            const form = document.getElementById(tabName + 'Form');
+            if (form) {
+                form.classList.add('active');
+            }
         });
     });
 
-    // Login
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.querySelector('#loginForm input[type="email"]').value;
-        const password = document.querySelector('#loginForm input[type="password"]').value;
-        
-        const user = {
-            name: email.split('@')[0],
-            email: email,
-            avatar: generateAvatar(email.split('@')[0])
-        };
+    // Manejar Submit de Login
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const emailInput = loginForm.querySelector('input[type="email"]');
+            const passwordInput = loginForm.querySelector('input[type="password"]');
+            
+            if (!emailInput || !passwordInput) return;
 
-        currentUser = user;
-        saveUser(user);
-        document.getElementById('loginModal').classList.remove('active');
-        initAuth();
-        document.getElementById('loginForm').reset();
-    });
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
 
-    // Registro
-    document.getElementById('registerForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.querySelector('#registerForm input[type="text"]').value;
-        const email = document.querySelector('#registerForm input[type="email"]').value;
-        const password = document.querySelector('#registerForm input[type="password"]:first-of-type').value;
-        const confirmPassword = document.querySelector('#registerForm input[type="password"]:last-of-type').value;
+            if (!email || !password) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
 
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
-            return;
-        }
+            const user = {
+                name: email.split('@')[0],
+                email: email,
+                avatar: generateAvatar(email.split('@')[0])
+            };
 
-        const user = {
-            name: name,
-            email: email,
-            avatar: generateAvatar(name)
-        };
+            currentUser = user;
+            saveUser(user);
 
-        currentUser = user;
-        saveUser(user);
-        document.getElementById('loginModal').classList.remove('active');
-        initAuth();
-        document.getElementById('registerForm').reset();
-    });
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) {
+                loginModal.classList.remove('active');
+            }
+
+            loginForm.reset();
+            updateUserUI();
+            alert(`¡Bienvenido ${user.name}!`);
+        });
+    }
+
+    // Manejar Submit de Registro
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const nameInput = registerForm.querySelector('input[type="text"]');
+            const emailInput = registerForm.querySelector('input[type="email"]');
+            const passwordInputs = registerForm.querySelectorAll('input[type="password"]');
+
+            if (!nameInput || !emailInput || passwordInputs.length < 2) return;
+
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInputs[0].value.trim();
+            const confirmPassword = passwordInputs[1].value.trim();
+
+            // Validaciones
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            if (name.length < 3) {
+                alert('El nombre debe tener al menos 3 caracteres');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            const user = {
+                name: name,
+                email: email,
+                avatar: generateAvatar(name)
+            };
+
+            currentUser = user;
+            saveUser(user);
+
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) {
+                loginModal.classList.remove('active');
+            }
+
+            registerForm.reset();
+            updateUserUI();
+            alert(`¡Bienvenido ${user.name}! Tu cuenta ha sido creada exitosamente.`);
+        });
+    }
 
     // Logout
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             deleteUser();
             currentUser = null;
-            initAuth();
+            updateUserUI();
+            alert('Has cerrado sesión');
             location.reload();
         });
     }
