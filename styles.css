@@ -205,6 +205,7 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
+    margin-bottom: 30px;
 }
 
 .schedule-btn {
@@ -233,6 +234,235 @@ body {
     color: #ffffff;
     box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
     transform: scale(1.08);
+}
+
+/* SECCIÓN DE RESERVA */
+.booking-section {
+    background: rgba(72, 219, 251, 0.1);
+    border: 2px solid rgba(72, 219, 251, 0.3);
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.booking-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #48dbfb;
+}
+
+.ticket-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.btn-minus, .btn-plus {
+    width: 45px;
+    height: 45px;
+    border: 2px solid #48dbfb;
+    background: rgba(72, 219, 251, 0.1);
+    color: #48dbfb;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-minus:hover, .btn-plus:hover {
+    background: rgba(72, 219, 251, 0.3);
+    transform: scale(1.1);
+}
+
+.btn-minus:active, .btn-plus:active {
+    transform: scale(0.95);
+}
+
+.ticket-count {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #48dbfb;
+    min-width: 60px;
+    text-align: center;
+}
+
+.price-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 1rem;
+}
+
+.price-row.total {
+    border-top: 2px solid rgba(72, 219, 251, 0.3);
+    padding-top: 15px;
+    margin-top: 10px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #48dbfb;
+}
+
+.price-value {
+    color: #feca57;
+    font-weight: 600;
+}
+
+.price-row.total .price-value {
+    color: #feca57;
+}
+
+.btn-confirm {
+    width: 100%;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #ff6b6b, #ff5a5a);
+    border: none;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-confirm:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ff5a5a, #ff4949);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-confirm:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+/* MODAL DE CONFIRMACIÓN */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1635, #302b63);
+    border: 2px solid rgba(72, 219, 251, 0.5);
+    border-radius: 20px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.4s ease-out;
+}
+
+.modal-header {
+    padding: 30px 30px 20px;
+    border-bottom: 2px solid rgba(72, 219, 251, 0.3);
+    text-align: center;
+}
+
+.modal-header h2 {
+    font-size: 1.8rem;
+    color: #48dbfb;
+    text-shadow: 0 0 10px rgba(72, 219, 251, 0.3);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.confirmation-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(72, 219, 251, 0.1);
+    border-radius: 10px;
+    border-left: 4px solid #48dbfb;
+}
+
+.confirmation-detail.highlight {
+    background: rgba(254, 202, 87, 0.1);
+    border-left-color: #feca57;
+    margin-top: 10px;
+}
+
+.detail-label {
+    font-size: 0.9rem;
+    color: #b0b3d9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.confirmation-detail.highlight .detail-value {
+    color: #feca57;
+    font-size: 1.5rem;
+}
+
+.modal-footer {
+    padding: 20px 30px 30px;
+    text-align: center;
+}
+
+.btn-new-booking {
+    background: linear-gradient(135deg, #48dbfb, #00d4ff);
+    border: none;
+    color: #0a0e27;
+    padding: 15px 40px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-new-booking:hover {
+    background: linear-gradient(135deg, #00d4ff, #00e5ff);
+    box-shadow: 0 0 20px rgba(72, 219, 251, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-new-booking:active {
+    transform: translateY(0);
 }
 
 /* ANIMACIONES */
@@ -269,11 +499,11 @@ body {
 
 @keyframes popIn {
     0% {
-        transform: scale(0);
+        transform: scale(0.8);
         opacity: 0;
     }
     50% {
-        transform: scale(1.2);
+        transform: scale(1.05);
     }
     100% {
         transform: scale(1);
@@ -304,6 +534,15 @@ body {
         padding: 12px 15px;
         font-size: 1rem;
     }
+
+    .booking-section {
+        padding: 20px;
+    }
+
+    .confirmation-detail {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -321,5 +560,20 @@ body {
 
     .schedule-buttons {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 20px;
+    }
+
+    .btn-new-booking {
+        padding: 12px 30px;
+        font-size: 0.95rem;
     }
 }

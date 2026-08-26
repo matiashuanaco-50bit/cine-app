@@ -30,15 +30,26 @@ const movies = [
     }
 ];
 
+// Constantes
+const PRICE_PER_TICKET = 3500;
+
 // Variables de estado
 let selectedMovie = null;
 let selectedSchedule = null;
+let ticketCount = 1;
 
 // Elementos del DOM
 const moviesGrid = document.getElementById('moviesGrid');
 const scheduleSection = document.getElementById('scheduleSection');
 const selectedMovieInfo = document.getElementById('selectedMovieInfo');
 const scheduleButtons = document.getElementById('scheduleButtons');
+const ticketCountElement = document.getElementById('ticketCount');
+const totalPriceElement = document.getElementById('totalPrice');
+const btnMinus = document.getElementById('btnMinus');
+const btnPlus = document.getElementById('btnPlus');
+const btnConfirm = document.getElementById('btnConfirm');
+const modalOverlay = document.getElementById('modalOverlay');
+const btnNewBooking = document.getElementById('btnNewBooking');
 
 // Renderizar películas
 function renderMovies() {
@@ -71,8 +82,10 @@ function selectMovie(movieId) {
         card.classList.remove('selected');
     });
 
-    // Remover selección de horario anterior
+    // Remover selección de horario anterior y reiniciar cantidad de entradas
     selectedSchedule = null;
+    ticketCount = 1;
+    updateTicketDisplay();
     document.querySelectorAll('.schedule-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
@@ -123,11 +136,86 @@ function selectSchedule(time) {
     selectedSchedule = time;
     const selectedBtn = document.querySelector(`[data-time="${time}"]`);
     selectedBtn.classList.add('selected');
+
+    // Validar si se puede habilitar el botón de confirmación
+    updateConfirmButtonState();
+}
+
+// Aumentar cantidad de entradas
+function increaseTickets() {
+    ticketCount++;
+    updateTicketDisplay();
+}
+
+// Disminuir cantidad de entradas
+function decreaseTickets() {
+    if (ticketCount > 1) {
+        ticketCount--;
+        updateTicketDisplay();
+    }
+}
+
+// Actualizar la visualización de entradas y precio
+function updateTicketDisplay() {
+    ticketCountElement.textContent = ticketCount;
+    const total = PRICE_PER_TICKET * ticketCount;
+    totalPriceElement.textContent = `$${total.toLocaleString('es-ES')}`;
+    updateConfirmButtonState();
+}
+
+// Validar estado del botón de confirmación
+function updateConfirmButtonState() {
+    const isEnabled = selectedMovie && selectedSchedule && ticketCount >= 1;
+    btnConfirm.disabled = !isEnabled;
+}
+
+// Mostrar modal de confirmación
+function showConfirmationModal() {
+    document.getElementById('modalMovie').textContent = `${selectedMovie.emoji} ${selectedMovie.title}`;
+    document.getElementById('modalSchedule').textContent = selectedSchedule;
+    document.getElementById('modalTickets').textContent = `${ticketCount} ${ticketCount === 1 ? 'entrada' : 'entradas'}`;
+    
+    const total = PRICE_PER_TICKET * ticketCount;
+    document.getElementById('modalTotal').textContent = `$${total.toLocaleString('es-ES')}`;
+    
+    modalOverlay.classList.add('active');
+}
+
+// Cerrar modal y hacer otra reserva
+function makeAnotherBooking() {
+    modalOverlay.classList.remove('active');
+    
+    // Reiniciar estado
+    selectedMovie = null;
+    selectedSchedule = null;
+    ticketCount = 1;
+    
+    // Limpiar UI
+    document.querySelectorAll('.movie-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    scheduleSection.classList.remove('active');
+    updateTicketDisplay();
+}
+
+// Event listeners para control de entradas
+if (btnMinus) btnMinus.addEventListener('click', decreaseTickets);
+if (btnPlus) btnPlus.addEventListener('click', increaseTickets);
+
+// Event listener para confirmar reserva
+if (btnConfirm) {
+    btnConfirm.addEventListener('click', showConfirmationModal);
+}
+
+// Event listener para hacer otra reserva
+if (btnNewBooking) {
+    btnNewBooking.addEventListener('click', makeAnotherBooking);
 }
 
 // Inicializar aplicación
 function init() {
     renderMovies();
+    updateConfirmButtonState();
 }
 
 // Ejecutar al cargar el DOM
