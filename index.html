@@ -1,153 +1,106 @@
-const movies = [
-  {
-    id: 1,
-    title: "AVENGERS: DOOMSDAY",
-    tag: "PRE-VENTA",
-    format: "4D-INFINITY",
-    genre: "Acción / Sci-Fi",
-    duration: "165 min",
-    poster: "https://image.tmdb.org/t/p/w500/mqAf42d2a45Yq6Tz6wE6iJ26X2Y.jpg",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-  },
-  {
-    id: 2,
-    title: "SPIDER-MAN: UN NUEVO DÍA",
-    tag: "ESTRENO",
-    format: "3D - 4D",
-    genre: "Acción / Aventura",
-    duration: "140 min",
-    poster: "https://image.tmdb.org/t/p/w500/8bp64X1wG5mG1gD1oJk99X2.jpg",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-  },
-  {
-    id: 3,
-    title: "DEADPOOL & WOLVERINE",
-    tag: "ESTRENO",
-    format: "2D - 3D",
-    genre: "Acción / Comedia",
-    duration: "128 min",
-    poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-    trailer: "https://www.youtube.com/embed/8Gxv8gSFCU0XGDykEGv7zR1n2ua"
-  },
-  {
-    id: 4,
-    title: "THE FANTASTIC FOUR",
-    tag: "PRE-VENTA",
-    format: "2D - 3D",
-    genre: "Sci-Fi",
-    duration: "135 min",
-    poster: "https://image.tmdb.org/t/p/w500/9l1E4uL9kR9J2V63xZ76.jpg",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-  }
-];
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineApp - Marvel Edition</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body>
 
-let selectedMovie = null;
-let selectedSeats = [];
-const ticketPrice = 4500;
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">🎬 CineApp</div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Buscar película...">
+    </div>
+    <div class="auth-container">
+      <button id="auth-btn" class="btn-primary" onclick="openAuthModal()">Iniciar Sesión</button>
+    </div>
+  </header>
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderMovies();
-  checkSession();
-});
-
-function renderMovies() {
-  const container = document.getElementById("movies-grid");
-  if (!container) return;
-
-  container.innerHTML = movies.map(m => `
-    <div class="movie-card">
-      <div class="poster-wrapper">
-        <span class="ribbon">${m.tag}</span>
-        <img src="${m.poster}" alt="${m.title}">
-        <span class="format-badge">${m.format}</span>
-      </div>
-      <div class="movie-info">
-        <h3>${m.title}</h3>
-        <p>${m.genre} • ${m.duration}</p>
-        <div class="card-btns">
-          <button class="btn-primary" onclick="selectMovie(${m.id})">Entradas</button>
-          <button class="btn-secondary" onclick="openTrailer('${m.trailer}')">Trailer</button>
-        </div>
+  <!-- Hero Banner Slider -->
+  <section class="hero-banner">
+    <div class="banner-content">
+      <span class="badge-hero">PRÓXIMO GRAN ESTRENO</span>
+      <h1>AVENGERS: DOOMSDAY</h1>
+      <p>El Multiverso colisiona. Victor Von Doom lidera la nueva era de Marvel Studios.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="selectMovie(1)">Comprar Entradas</button>
+        <button class="btn-secondary" onclick="openTrailer('https://www.youtube.com/embed/dQw4w9WgXcQ')">Ver Teaser</button>
       </div>
     </div>
-  `).join('');
-}
+  </section>
 
-function selectMovie(id) {
-  selectedMovie = movies.find(m => m.id === id);
-  selectedSeats = [];
-  document.getElementById("seats-section").classList.remove("hidden");
-  document.getElementById("seats-section").scrollIntoView({ behavior: 'smooth' });
-  renderSeats();
-}
+  <!-- Cartelera -->
+  <main class="cartelera-container">
+    <h2>En Cartelera</h2>
+    <div id="movies-grid" class="movies-grid"></div>
+  </main>
 
-function renderSeats() {
-  const container = document.getElementById("seats-container");
-  container.innerHTML = "";
-  for (let i = 1; i <= 60; i++) {
-    const seat = document.createElement("button");
-    const isOccupied = i % 7 === 0;
-    seat.className = `seat ${isOccupied ? 'occupied' : 'free'}`;
-    seat.innerText = i;
-    seat.disabled = isOccupied;
+  <!-- Mapa de Asientos -->
+  <section id="seats-section" class="seats-section hidden">
+    <h2>Seleccioná tus Asientos</h2>
+    <div class="screen-container">
+      <div class="screen">PANTALLA</div>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="seat-sample free"></span> Libre</span>
+      <span class="legend-item"><span class="seat-sample occupied"></span> Ocupado</span>
+      <span class="legend-item"><span class="seat-sample selected"></span> Seleccionado</span>
+    </div>
+    <div id="seats-container" class="seats-grid"></div>
+    <div class="booking-summary">
+      <p>Asientos: <strong id="selected-seats-text">Ninguno</strong></p>
+      <p>Total: <strong id="total-price-text">$0</strong></p>
+      <button id="pay-btn" class="btn-primary" disabled onclick="openCheckout()">Ir a Pagar</button>
+    </div>
+  </section>
 
-    seat.onclick = () => {
-      if (seat.classList.contains("selected")) {
-        seat.classList.remove("selected");
-        selectedSeats = selectedSeats.filter(s => s !== i);
-      } else {
-        seat.classList.add("selected");
-        selectedSeats.push(i);
-      }
-      document.getElementById("selected-seats-text").innerText = selectedSeats.length ? selectedSeats.join(", ") : "Ninguno";
-      document.getElementById("total-price-text").innerText = `$${selectedSeats.length * ticketPrice}`;
-      document.getElementById("pay-btn").disabled = selectedSeats.length === 0;
-    };
-    container.appendChild(seat);
-  }
-}
+  <!-- Modal Trailer -->
+  <div id="trailer-modal" class="modal hidden">
+    <div class="modal-content video-content">
+      <span class="close-btn" onclick="closeTrailer()">&times;</span>
+      <iframe id="trailer-frame" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
 
-// Trailers
-function openTrailer(url) {
-  document.getElementById("trailer-frame").src = url;
-  document.getElementById("trailer-modal").classList.remove("hidden");
-}
-function closeTrailer() {
-  document.getElementById("trailer-frame").src = "";
-  document.getElementById("trailer-modal").classList.add("hidden");
-}
+  <!-- Modal Checkout -->
+  <div id="checkout-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeCheckout()">&times;</span>
+      <h3>Pago por Transferencia Bancaria</h3>
+      <p style="margin: 10px 0;"><strong>Alias:</strong> cine.app.reservas</p>
+      <p style="margin-bottom: 15px;"><strong>CVU:</strong> 0000003100012345678901</p>
+      <button class="btn-primary" onclick="confirmPayment()">Confirmar y Generar Ticket</button>
+    </div>
+  </div>
 
-// Modales Checkout & Ticket
-function openCheckout() { document.getElementById("checkout-modal").classList.remove("hidden"); }
-function closeCheckout() { document.getElementById("checkout-modal").classList.add("hidden"); }
+  <!-- Modal Ticket -->
+  <div id="ticket-modal" class="modal hidden">
+    <div class="modal-content ticket-box">
+      <h3>🎟️ TICKET DIGITAL CINEAPP</h3>
+      <div id="ticket-details" style="margin: 15px 0;"></div>
+      <canvas id="qr-code" style="margin-bottom: 15px;"></canvas>
+      <button class="btn-primary" onclick="window.print()">Imprimir Ticket</button>
+      <button class="btn-secondary" onclick="closeTicket()">Cerrar</button>
+    </div>
+  </div>
 
-function confirmPayment() {
-  closeCheckout();
-  const user = JSON.parse(localStorage.getItem("currentUser")) || { name: "Cliente" };
-  document.getElementById("ticket-details").innerHTML = `
-    <p><strong>Usuario:</strong> ${user.name}</p>
-    <p><strong>Película:</strong> ${selectedMovie.title}</p>
-    <p><strong>Asientos:</strong> ${selectedSeats.join(", ")}</p>
-    <p><strong>Total:</strong> $${selectedSeats.length * ticketPrice}</p>
-  `;
-  new QRious({ element: document.getElementById("qr-code"), value: `CINEAPP-${Date.now()}`, size: 150 });
-  document.getElementById("ticket-modal").classList.remove("hidden");
-}
-function closeTicket() { document.getElementById("ticket-modal").classList.add("hidden"); }
+  <!-- Modal Login -->
+  <div id="auth-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+      <h3>Iniciar Sesión</h3>
+      <form id="auth-form" style="margin-top: 15px;">
+        <input type="text" id="user-name" placeholder="Tu Nombre" required style="width: 100%; padding: 8px; margin-bottom: 10px;">
+        <button type="submit" class="btn-primary" style="width: 100%;">Guardar</button>
+      </form>
+    </div>
+  </div>
 
-// Auth
-function openAuthModal() { document.getElementById("auth-modal").classList.remove("hidden"); }
-function closeAuthModal() { document.getElementById("auth-modal").classList.add("hidden"); }
-
-document.getElementById("auth-form").onsubmit = (e) => {
-  e.preventDefault();
-  const name = document.getElementById("user-name").value;
-  localStorage.setItem("currentUser", JSON.stringify({ name }));
-  checkSession();
-  closeAuthModal();
-};
-
-function checkSession() {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  if (user) document.getElementById("auth-btn").innerText = `👤 ${user.name}`;
-}
+  <script src="script.js"></script>
+</body>
+</html>
