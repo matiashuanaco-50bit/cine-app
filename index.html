@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine App - Reserva de Películas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎬 Cine App</h1>
+            <p class="subtitle">Reserva tus películas favoritas</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Sección de Catálogo de Películas -->
+            <section class="movies-section">
+                <h2>Películas Disponibles</h2>
+                <div class="movies-grid" id="moviesGrid"></div>
+            </section>
+
+            <!-- Sección de Selección de Horario (oculta por defecto) -->
+            <section class="schedule-section" id="scheduleSection">
+                <h2>Selecciona un Horario</h2>
+                <div class="selected-movie-info" id="selectedMovieInfo"></div>
+                <div class="schedule-buttons" id="scheduleButtons"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
