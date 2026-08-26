@@ -413,7 +413,9 @@ function updateSeatsDisplay() {
 
     // Habilitar botón de pago
     const proceedBtn = document.getElementById('proceedCheckoutBtn');
-    proceedBtn.disabled = selectedSeats.length === 0 || !selectedTime;
+    if (proceedBtn) {
+        proceedBtn.disabled = selectedSeats.length === 0 || !selectedTime;
+    }
 }
 
 // ========================= CHECKOUT =========================
@@ -482,7 +484,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function updateFinalizeBtnState() {
     const finalizeBtn = document.getElementById('finalizePaymentBtn');
-    finalizeBtn.disabled = !paymentCompleted;
+    if (finalizeBtn) {
+        finalizeBtn.disabled = !paymentCompleted;
+    }
 }
 
 // ========================= TICKET DIGITAL =========================
@@ -622,9 +626,18 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('trailerModal').classList.remove('active');
             document.getElementById('seatsSection').style.display = 'block';
 
+            // Limpiar sección previa si existe
+            const existingSchedules = document.querySelector('.seats-section > div:first-of-type');
+            if (existingSchedules && existingSchedules.style.marginBottom === '25px') {
+                existingSchedules.remove();
+            }
+
             // Renderizar horarios y asientos
             renderSchedules();
             renderSeats();
+            
+            // Scroll hacia la sección
+            document.getElementById('seatsSection').scrollIntoView({ behavior: 'smooth' });
         });
     }
 
@@ -657,8 +670,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================= HORARIOS =========================
 function renderSchedules() {
     const container = document.getElementById('seatsSection');
-    let schedulesHtml = '<div style="margin-bottom: 25px;">';
-    schedulesHtml += '<label style="color: #b0b3d9; margin-right: 15px;">Selecciona horario:</label>';
+    
+    // Remover horarios previos si existen
+    const existingSchedules = container.querySelector('.schedules-wrapper');
+    if (existingSchedules) {
+        existingSchedules.remove();
+    }
+
+    let schedulesHtml = '<div class="schedules-wrapper" style="margin-bottom: 25px;">';
+    schedulesHtml += '<label style="color: #b0b3d9; margin-right: 15px; display: block; margin-bottom: 12px;">Selecciona horario:</label>';
     schedulesHtml += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
 
     selectedMovie.schedules.forEach(schedule => {
@@ -679,7 +699,10 @@ function renderSchedules() {
 
     const scheduleContainer = document.createElement('div');
     scheduleContainer.innerHTML = schedulesHtml;
-    container.insertBefore(scheduleContainer, document.getElementById('seatsGrid'));
+    
+    // Insertar antes de la leyenda de asientos
+    const seatsContainer = container.querySelector('.seats-container');
+    container.insertBefore(scheduleContainer, seatsContainer);
 
     // Event listeners para horarios
     document.querySelectorAll('.schedule-btn').forEach(btn => {
