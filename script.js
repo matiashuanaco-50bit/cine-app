@@ -2,7 +2,7 @@
 const moviesDatabase = [
     {
         id: 1,
-        title: "Dune: Part Two",
+        title: "Wolverine vs Spiderman",
         genre: "action",
         format: "3d",
         poster: "HO00012878.jpg",
